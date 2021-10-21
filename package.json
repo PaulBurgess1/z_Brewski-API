@@ -1,0 +1,17 @@
+{
+  "name": "brewski-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "author": "paul burgess",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.10",
+    "express": "^4.17.1",
+    "nodemon": "^2.0.14",
+    "puppeteer": "^10.4.0"
+  }
+}
