@@ -1,21 +1,13 @@
 const PORT = process.env.PORT || 8000;
 
 const express = require('express');
-const puppeteer = require('puppeteer');
 const cheerio = require('cheerio');
-let c_ip=""
+const axios = require('axios')
 
 const app = express()
-//const CLIENT_IP=
-/*
-const getIP=()=>{
-    axios.get("https://geolocation-db.com/json/")
-    .then((response) =>{
-        c_ip=response.data.IPv4;
-    })
-}
-*/
 
+
+//---------------------------------------Functions
 const getBottlesAndCans=($, html) => {
         //Default Location is "Victoria Park/Finch - 2km" in Toronto
         const location = $('span[id=cr_s_n]').text();
@@ -34,8 +26,6 @@ const getBottlesAndCans=($, html) => {
                     else{
                         row.push(temp)
                     }
-                    
-                    
                 });//block
                 let ppb = (  (row[2].slice(1)) / row[0].split(' ')[0] ).toFixed(2) //Gets the APPX price per can
                 row.push("$"+ppb);
@@ -53,72 +43,48 @@ const getBottlesAndCans=($, html) => {
         return [location, bottles, cans]
   }
 
+
+//----------------------------------------------------------Endpoints
 app.get('/', (req, res) => {
     res.json('Welcome To Brewski Api!')
 })
 
-
-//Brava was chosen as the default beer.
-app.get('/beer', async (req, res) => {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.goto('https://www.thebeerstore.ca/beers/brava/');
-
-    //needs to wait for page to load in the stores stock otherwise you get the Victoria Park/Finch store by default.
-    try {
-        await Promise.all([
-        page.waitForNavigation(), // The promise resolves after navigation has finished
-        page.click("#cst_header_locator > div.locator_popup.locator_popupSec.dropdown-menu > div.onload-location-pop > div.cst_location_block.first_block > div.loc-block-header > button")
-      ]);
-    } catch (error) {
-        console.log("button click error")
-    }
-    
-    const html = await page.content();
-    await browser.close();
-    const $ =cheerio.load(html);
-    let data =getBottlesAndCans($, html)
-    const stock ={
-        beer: "Brava",
-        location: data[0],
-        bottles: data[1],
-        cans: data[2]
-    }
-    res.json(stock);
-
-})//    /beer
-
-//
-app.get('/beer/:beerName', async (req, res) => {
+//Beer store
+//Always gets data from the 'Victoria Park/Finch' store.
+app.get('/beerstore', async (req, res) => {
+    axios.get('https://www.thebeerstore.ca/beers/brava/')
+        .then(response => {
+            const html = response.data
+            const $ = cheerio.load(html)
+            let data =getBottlesAndCans($, html)
+            const stock ={
+                beer: "Brava",
+                url: 'https://www.thebeerstore.ca/beers/brava',
+                location: "Victoria Park/Finch, Toronto",
+                bottles: data[1],
+                cans: data[2]
+            }
+            res.json(stock);
+        })
+})
+//beerstore w/ beer name
+app.get('/beerstore/:beerName', async (req, res) => {
     const beerName = (req.params.beerName).replace(/ /g, "-");
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.goto('https://www.thebeerstore.ca/beers/'+beerName);
-
-    //needs to wait for page to load in the stores stock otherwise you get the Victoria Park/Finch store by default.
-    try {
-        await Promise.all([
-        page.waitForNavigation(), // The promise resolves after navigation has finished
-        page.click("#cst_header_locator > div.locator_popup.locator_popupSec.dropdown-menu > div.onload-location-pop > div.cst_location_block.first_block > div.loc-block-header > button")
-      ]);
-    } catch (error) {
-        console.log("button click error")
-    }
-    
-    
-    const html = await page.content();
-    await browser.close();
-    const $ =cheerio.load(html);
-    let data =getBottlesAndCans($, html)
-    const stock ={
-        beer: beerName,
-        location: data[0],
-        bottles: data[1],
-        cans: data[2]
-    }
-    res.json(stock);
-
-
+    axios.get('https://www.thebeerstore.ca/beers/'+beerName)
+        .then(response => {
+            const html = response.data
+            const $ = cheerio.load(html)
+            let data =getBottlesAndCans($, html)
+            const stock ={
+                beer: beerName,
+                url: 'https://www.thebeerstore.ca/beers/'+beerName,
+                location: "Victoria Park/Finch, Toronto",
+                bottles: data[1],
+                cans: data[2]
+            }
+            res.json(stock);
+        })
 })
 
+//------------
 app.listen(PORT, () => console.log("Server running on PORT: "+PORT))
