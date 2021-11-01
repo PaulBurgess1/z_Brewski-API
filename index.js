@@ -80,10 +80,10 @@ app.get('/beerstore/:beerName', async (req, res) => {
     res.type("json")
     //Input fixing
     let beerName = (req.params.beerName).replace(/ /g, "-");
-    beerName = beerName.replaceAll(/'/g,"")
-    beerName = beerName.replaceAll('(',"")
-    beerName = beerName.replaceAll(')',"")
-    beerName = beerName.replaceAll(".","-")
+    beerName = beerName.replace(/'/g,"")
+    beerName = beerName.replace('(',"")
+    beerName = beerName.replace(')',"")
+    beerName = beerName.replace(".","-")
 
     axios.get('https://www.thebeerstore.ca/beers/'+beerName)
         .then(response => {
