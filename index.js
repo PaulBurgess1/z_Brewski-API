@@ -23,6 +23,9 @@ const getBottlesAndCans=($, html) => {
                     if (temp[0] == "P"){
                         row.push("Packup")
                     }
+                    else if(temp[0] == "O"){
+                        row.push("0")
+                    }
                     else{
                         row.push(temp)
                     }
@@ -75,7 +78,13 @@ app.get('/beerstore', async (req, res) => {
 app.get('/beerstore/:beerName', async (req, res) => {
     res.set("access-control-allow-origin", "*");
     res.type("json")
-    const beerName = (req.params.beerName).replace(/ /g, "-");
+    //Input fixing
+    let beerName = (req.params.beerName).replace(/ /g, "-");
+    beerName = beerName.replace(/'/g,"")
+    beerName = beerName.replace('(',"")
+    beerName = beerName.replace(')',"")
+    beerName = beerName.replace(".","-")
+
     axios.get('https://www.thebeerstore.ca/beers/'+beerName)
         .then(response => {
             const html = response.data
