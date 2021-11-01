@@ -46,12 +46,16 @@ const getBottlesAndCans=($, html) => {
 
 //----------------------------------------------------------Endpoints
 app.get('/', (req, res) => {
+    res.set("access-control-allow-origin", "*");
+    res.type("json")
     res.json('Welcome To Brewski Api!')
 })
 
 //Beer store
 //Always gets data from the 'Victoria Park/Finch' store.
 app.get('/beerstore', async (req, res) => {
+    res.set("access-control-allow-origin", "*");
+    res.type("json")
     axios.get('https://www.thebeerstore.ca/beers/brava/')
         .then(response => {
             const html = response.data
@@ -69,6 +73,8 @@ app.get('/beerstore', async (req, res) => {
 })
 //beerstore w/ beer name
 app.get('/beerstore/:beerName', async (req, res) => {
+    res.set("access-control-allow-origin", "*");
+    res.type("json")
     const beerName = (req.params.beerName).replace(/ /g, "-");
     axios.get('https://www.thebeerstore.ca/beers/'+beerName)
         .then(response => {
