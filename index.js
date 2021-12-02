@@ -30,9 +30,15 @@ const getBottlesAndCans=($, html) => {
                         row.push(temp)
                     }
                 });//block
-                let ppb = (  (row[2].slice(1)) / row[0].split(' ')[0] ).toFixed(2) //Gets the APPX price per can
+                let temp = row[0].split(' ');
+                let ppb = (  (row[2].slice(1)) / temp[0] ).toFixed(2) //Gets the APPX price per can
                 row.push("$"+ppb);
+                //Price per 100ml
+                let x = (temp[0] * temp[3]) / 100;
+                let ppml = (row[2].slice(1) / x ).toFixed(2);
+                row.push("$"+ppml);
                 //   "XX_can_XXX_ml" = 15 characters
+                //    Kegs are considered bottles, for simplicity.
                 if(row[0].length > 15){
                     bottles.push(row)
                 }
